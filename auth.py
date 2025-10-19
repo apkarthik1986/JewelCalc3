@@ -92,7 +92,7 @@ def show_login_page(db):
                 new_full_name = st.text_input("Full Name *")
             with col2:
                 new_email = st.text_input("Email")
-                new_phone = st.text_input("Phone Number")
+                new_phone = st.text_input("Phone Number (10 digits)", max_chars=10, help="Enter exactly 10 digits")
             
             new_password = st.text_input("Password *", type="password", help="Choose a strong password")
             confirm_password = st.text_input("Confirm Password *", type="password")
@@ -106,6 +106,10 @@ def show_login_page(db):
                     st.error("Passwords do not match")
                 elif len(new_password) < 6:
                     st.error("Password must be at least 6 characters long")
+                elif new_phone and not new_phone.isdigit():
+                    st.error("❌ Phone number must contain only digits")
+                elif new_phone and len(new_phone) != 10:
+                    st.error(f"❌ Phone number must be exactly 10 digits (currently {len(new_phone)} digits)")
                 else:
                     try:
                         # Check if username already exists
@@ -128,7 +132,7 @@ def show_login_page(db):
         with st.form("forgot_password_form"):
             forgot_username = st.text_input("Username (optional)", help="If you know your username")
             forgot_email = st.text_input("Email", help="Your registered email")
-            forgot_phone = st.text_input("Phone", help="Your registered phone number")
+            forgot_phone = st.text_input("Phone (10 digits)", max_chars=10, help="Your registered phone number (10 digits)")
             
             request_type = st.radio(
                 "What do you need help with?",
@@ -141,6 +145,8 @@ def show_login_page(db):
             if forgot_submit:
                 if not forgot_username and not forgot_email and not forgot_phone:
                     st.error("Please provide at least your username, email, or phone number")
+                elif forgot_phone and (not forgot_phone.isdigit() or len(forgot_phone) != 10):
+                    st.error("❌ Phone number must be exactly 10 digits")
                 else:
                     try:
                         # Map request type to database format
@@ -210,7 +216,7 @@ def show_user_menu():
             st.markdown("#### Update Profile")
             with st.form("update_profile_form"):
                 profile_email = st.text_input("Email", value=user.get('email', ''))
-                profile_phone = st.text_input("Phone Number", value=user.get('phone', ''))
+                profile_phone = st.text_input("Phone Number (10 digits)", value=user.get('phone', ''), max_chars=10, help="Enter exactly 10 digits")
                 
                 update_profile_submit = st.form_submit_button("Update Profile")
                 
@@ -218,7 +224,7 @@ def show_user_menu():
                     from utils import validate_phone
                     
                     if profile_phone and not validate_phone(profile_phone):
-                        st.error("Phone must be exactly 10 digits")
+                        st.error("❌ Phone must be exactly 10 digits")
                     else:
                         # Update profile
                         auth_db.update_user_profile(
