@@ -416,7 +416,17 @@ with tab2:
             name = st.text_input("Customer Name *")
         
         with col2:
-            phone = st.text_input("Phone Number * (10 digits)")
+            phone = st.text_input("Phone Number * (10 digits)", max_chars=10, key="add_customer_phone")
+            # Visual feedback for phone number
+            if phone:
+                phone_len = len(phone)
+                if phone_len < 10:
+                    st.warning(f"⚠️ {phone_len}/10 digits - Need {10 - phone_len} more")
+                elif phone_len == 10:
+                    if phone.isdigit():
+                        st.success("✅ 10/10 digits - Valid!")
+                    else:
+                        st.error("❌ Only digits allowed")
             address = st.text_area("Address")
         
         if st.button("➕ Add Customer", width='stretch'):
@@ -468,7 +478,17 @@ with tab2:
                         name = st.text_input("Customer Name", value=customer['name'])
                     
                     with col2:
-                        phone = st.text_input("Phone Number", value=customer['phone'])
+                        phone = st.text_input("Phone Number", value=customer['phone'], max_chars=10, key=f"edit_customer_phone_{customer_id}")
+                        # Visual feedback for phone number
+                        if phone:
+                            phone_len = len(phone)
+                            if phone_len < 10:
+                                st.warning(f"⚠️ {phone_len}/10 digits - Need {10 - phone_len} more")
+                            elif phone_len == 10:
+                                if phone.isdigit():
+                                    st.success("✅ 10/10 digits - Valid!")
+                                else:
+                                    st.error("❌ Only digits allowed")
                         address = st.text_area("Address", value=customer.get('address', ''))
                     
                     if st.button("💾 Update Customer", width='stretch'):
@@ -1362,7 +1382,7 @@ if require_admin():
                     create_full_name = st.text_input("Full Name *")
                     create_email = st.text_input("Email")
                 with col2:
-                    create_phone = st.text_input("Phone Number")
+                    create_phone = st.text_input("Phone Number (10 digits)", max_chars=10)
                     create_role = st.selectbox("Role", ["user", "admin"])
                     create_password = st.text_input("Password *", type="password")
                 

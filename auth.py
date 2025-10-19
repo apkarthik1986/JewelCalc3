@@ -165,6 +165,15 @@ def show_login_page(db):
                         st.error(f"Error submitting request: {str(e)}")
 
 
+def _clear_session_state():
+    """Helper function to clear all session state variables"""
+    for key in ['logged_in', 'user_id', 'username', 'user_role', 'user_full_name', 
+               'admin_return_id', 'admin_return_username', 'admin_return_role', 
+               'admin_return_fullname', 'admin_return_dbpath']:
+        if key in st.session_state:
+            del st.session_state[key]
+
+
 def show_user_menu():
     """Display user menu in sidebar"""
     with st.sidebar:
@@ -248,13 +257,16 @@ def show_user_menu():
                             auth_db.update_user_password(st.session_state.user_id, new_hash)
                             st.success("✅ Password updated successfully!")
         
+        # Show "Back to Admin Login" button only for admins (but not when viewing as another user)
+        if st.session_state.get('user_role') == 'admin' and not st.session_state.get('admin_return_id'):
+            if st.button("🔙 Back to Admin Login", use_container_width=True, type="secondary"):
+                # Clear session state to return to login page
+                _clear_session_state()
+                st.rerun()
+        
         if st.button("🚪 Logout", use_container_width=True):
             # Clear session state
-            for key in ['logged_in', 'user_id', 'username', 'user_role', 'user_full_name', 
-                       'admin_return_id', 'admin_return_username', 'admin_return_role', 
-                       'admin_return_fullname', 'admin_return_dbpath']:
-                if key in st.session_state:
-                    del st.session_state[key]
+            _clear_session_state()
             st.rerun()
 
 
